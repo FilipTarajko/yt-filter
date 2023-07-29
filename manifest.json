@@ -1,0 +1,27 @@
+{
+  "name": "YT filter",
+  "description": "allows filtering youtube recommendations",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content-script.js"]
+    }
+  ],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "action": {
+    "default_popup": "/options/options.html",
+    "default_icon": {
+      "128": "/images/icon128.png"
+    }
+  },
+  "icons": {
+    "128": "/images/icon128.png"
+  },
+  "options_page": "/options/options.html",
+  "host_permissions": ["https://www.youtube.com/*"]
+}
