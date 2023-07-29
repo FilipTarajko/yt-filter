@@ -1,7 +1,7 @@
-let MS_BETWEEN_TRIES = 100;
+let MS_BETWEEN_TRIES = 30;
 let debug = true;
 
-function waitAndHide(type, name, timesNested = 2){
+function waitAndHide(type, name, timesNested, tagnameToHide){
     var xpath = `//${type}[contains(text(),'Shorts')]`;
     let interval = setInterval(()=>{
         var matchingElement = document
@@ -11,7 +11,7 @@ function waitAndHide(type, name, timesNested = 2){
         for (let i=0; i<timesNested; i++){
             toHide = toHide?.parentElement;
         }
-        if (toHide){
+        if (toHide?.tagName == tagnameToHide){
             toHide.style.display = "none";
             matchingElement.innerText = "";
             clearInterval(interval);
@@ -22,16 +22,18 @@ function waitAndHide(type, name, timesNested = 2){
     }, MS_BETWEEN_TRIES);
 }
 
-function hideShorts(){
-    waitAndHide("span", "main", timesNested = 9)
-    waitAndHide("span", "side small", timesNested = 2)
-    waitAndHide("yt-formatted-string", "side big", timesNested = 2)
-}
-
-chrome.storage.local.get(["hideShorts"], function (val) {
+chrome.storage.local.get(["hideShortsRecommendations", "hideShortsPageButton"], function (val) {
     let url = window.location.href;
     if (url == "https://www.youtube.com/") {
-        val.hideShorts && hideShorts();
+        if (val.hideShortsRecommendations){
+            //<ytd-rich-section-renderer class="style-scope ytd-rich-grid-renderer">
+            waitAndHide("span", "main", 9, "YTD-RICH-SECTION-RENDERER")
+        }
+        if (val.hideShortsPageButton){
+            // <a id="endpoint" tabindex="-1" class="yt-simple-endpoint style-scope ytd-mini-guide-entry-renderer" title="Shorts">
+            waitAndHide("span", "side small", 2, "YTD-MINI-GUIDE-ENTRY-RENDERER")
+            waitAndHide("yt-formatted-string", "side big", 2, "A")
+        }
     } else {
         console.log("not main page");
     }
