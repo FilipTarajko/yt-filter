@@ -1,4 +1,5 @@
 let MS_BETWEEN_TRIES = 30;
+let approved_videos = [];
 
 function waitAndHide(content, type, name, timesNested, tagnameToHide){
     var xpath = `//${type}[contains(text(),"${content}")]`;
@@ -14,9 +15,27 @@ function waitAndHide(content, type, name, timesNested, tagnameToHide){
             toHide.style.display = "none";
             matchingElement.innerText = "";
             clearInterval(interval);
-            // console.log(`${name} has been hidden`);
         }
     }, MS_BETWEEN_TRIES);
+}
+
+function handleVideoTitles(){
+    let titles = document.querySelectorAll('yt-formatted-string#video-title:not(.filtered)');
+    for (let titleElem of titles){
+        let title = titleElem.innerText;
+        let lowercased = title.toLowerCase();
+        let videoBlock = titleElem;
+        for (let i=0; i<8; i++){
+            videoBlock = videoBlock.parentElement;
+        }
+        if (!lowercased.includes("-") || approved_videos.includes(title)){
+            videoBlock.style.display = "none";
+        } else {
+            approved_videos.push(title);
+            filteredVideosParent.appendChild(videoBlock);
+        }
+        titleElem.classList.add("filtered");
+    }
 }
 
 chrome.storage.local.get(
@@ -41,5 +60,22 @@ chrome.storage.local.get(
         if (val.hideBreakingNewsInRecommendations){
             waitAndHide("Breaking news", "span", "breaking news on main", 9, "YTD-RICH-SECTION-RENDERER");
         }
+        let contentsInterval = setInterval(()=>{
+            contents = document.getElementById("contents");
+            if (contents){
+                clearInterval(contentsInterval);
+                let ax = contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
+                console.log(ax);
+                contents.style.display = "hidden";
+                let filteredVideosParent = document.getElementById("filteredVideosParent");
+                filteredVideosParent.style.display="flex";
+                filteredVideosParent.style.displayDirection="horizontal";
+                filteredVideosParent.style.width="100%";
+                filteredVideosParent.style.flexWrap="wrap";
+                setInterval(()=>{
+                    handleVideoTitles(filteredVideosParent);
+                }, MS_BETWEEN_TRIES)
+            }
+        }, MS_BETWEEN_TRIES);
     }
 });
