@@ -64,8 +64,7 @@ chrome.storage.local.get(
             contents = document.getElementById("contents");
             if (contents){
                 clearInterval(contentsInterval);
-                let ax = contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
-                console.log(ax);
+                contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
                 contents.style.display = "hidden";
                 let filteredVideosParent = document.getElementById("filteredVideosParent");
                 filteredVideosParent.style.display="flex";
