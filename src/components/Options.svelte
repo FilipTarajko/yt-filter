@@ -1,22 +1,8 @@
 <script lang="ts">
-  type Filter = {
-    text: string;
-    asFull: boolean;
-    refersToTitle: boolean;
-    refersToChannel: boolean;
-    isOn: boolean;
-  }
-
-  type FilterSet = {
-    name: string;
-    filters: Filter[];
-    currentMode: FilteringMode;
-  }
-
   enum FilteringMode {
-    blacklist,
-    off,
-    whitelist,
+      blacklist,
+      off,
+      whitelist,
   }
 
   export let isExtensionActive: boolean;
@@ -129,16 +115,8 @@
     <hr/>
     <h2>Edited filter set: <input type="text" bind:value={editedFilterSet.name} on:input={()=>{
       filterSets[editedIndex] = editedFilterSet;
+      saveFilterSets();
     }}></h2>
-
-  <!--
-    // isOn: boolean;
-    // text: string;
-    // asFull: boolean;
-    // refersToTitle: boolean;
-    // refersToChannel: boolean;
-  -->
-
     <div class="filtersGrid">
       <div class="header">on</div>
       <div class="header">text</div>
@@ -147,11 +125,11 @@
       <div class="header">in channel</div>
       <div class="header">delete</div>
       {#each editedFilterSet.filters as filter}
-      <input type="checkbox" bind:checked={filter.isOn}>
-      <input type="text" bind:value={filter.text}>
-      <input type="checkbox" bind:checked={filter.asFull}>
-      <input type="checkbox" bind:checked={filter.refersToTitle}>
-      <input type="checkbox" bind:checked={filter.refersToChannel}>
+      <input type="checkbox" bind:checked={filter.isOn} on:change={saveFilterSets}>
+      <input type="text" bind:value={filter.text} on:input={saveFilterSets}>
+      <input type="checkbox" bind:checked={filter.asFull} on:change={saveFilterSets}>
+      <input type="checkbox" bind:checked={filter.refersToTitle} on:change={saveFilterSets}>
+      <input type="checkbox" bind:checked={filter.refersToChannel} on:change={saveFilterSets}>
       <button on:click={()=>{
         editedFilterSet.filters = editedFilterSet.filters.filter((e)=>e!=filter);
         saveFilterSets();
@@ -178,7 +156,6 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, 40px) 140px repeat(2, 25px) 35px 40px;
-    /* gap: -1px; */
     column-gap: 2px;
     row-gap: 2px;
   }
@@ -187,7 +164,6 @@
     width: 100%;
     display: grid;
     grid-template-columns: 40px 120px 70px 50px 70px 40px;
-    /* gap: -1px; */
     column-gap: 2px;
     row-gap: 2px;
   }
@@ -206,8 +182,4 @@
   h2 {
     margin: 6px 0;
   }
-/* 
-  #filterSetsGrid div {
-    border: 2px solid black;
-  } */
 </style>
