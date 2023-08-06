@@ -4,7 +4,7 @@ const target = document.getElementById('app');
 
 async function render() {
   let {
-    isExtensionActive, hideSections
+    isExtensionActive, hideSections, filterSets
   } = await chrome.storage.local.get(
     {isExtensionActive: false,
     hideSections: {
@@ -12,14 +12,16 @@ async function render() {
       shortsPageButton: false,
       trendingRecommendations: false,
       breakingNewsRecommendations: false
-    }}
+    },
+    filterSets: []
+    }
   );
-  new Options({target
-    , props: {
-    isExtensionActive: isExtensionActive,
-    hideSections: hideSections
-  }
-});
+  new Options({target,props: {
+    isExtensionActive,
+    hideSections,
+    filterSets
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', render);
