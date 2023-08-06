@@ -106,12 +106,25 @@ function handleVideos(filteredVideosParent, filterSets: FilterSet[]){
             videoBlock.style.display = "none";
         }
 
-        // MARK AS FILTERED
+        // MARK TITLE AND IMAGE AS FILTERED
         titleElem.classList.add("filtered");
+        let thumbnailElem = titleElem;
+        for (let i=0; i<5; i++){
+            thumbnailElem = thumbnailElem?.parentElement;
+        }
+        for (let i=0; i<5; i++){
+            thumbnailElem = thumbnailElem?.children[0];
+        }
+        thumbnailElem?.classList.add("filtered");
     }
 }
 
 function mainPage(val){
+    let styleSheet = document.createElement("style");
+    styleSheet.innerText = `#video-title:not(.filtered){display: none;}
+    .yt-core-image:not(.filtered){display:none;}`
+    ;
+    document.head.appendChild(styleSheet);
     if (val.hideSections.shortsRecommendations){
         waitAndHide("Shorts", "span", 9, "YTD-RICH-SECTION-RENDERER");
     }
