@@ -1,3 +1,10 @@
+chrome.storage.local.get(["isExtensionActive"], function (val) {
+  document.getElementById("isExtensionActive").checked = val.isExtensionActive;
+  document.getElementById("isExtensionActive").addEventListener("change", (e) => {
+    chrome.storage.local.set({ isExtensionActive: e.target.checked });
+  });
+});
+
 chrome.storage.local.get(["hideShortsRecommendations"], function (val) {
   document.getElementById("hideShortsRecommendations").checked = val.hideShortsRecommendations;
   document.getElementById("hideShortsRecommendations").addEventListener("change", (e) => {

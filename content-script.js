@@ -19,7 +19,7 @@ function waitAndHide(content, type, name, timesNested, tagnameToHide){
     }, MS_BETWEEN_TRIES);
 }
 
-function handleVideoTitles(){
+function handleVideos(){
     let titles = document.querySelectorAll('yt-formatted-string#video-title:not(.filtered)');
     for (let titleElem of titles){
         let title = titleElem.innerText;
@@ -38,43 +38,50 @@ function handleVideoTitles(){
     }
 }
 
-chrome.storage.local.get(
-    [
-        "hideShortsRecommendations",
-        "hideShortsPageButton",
-        "hideBreakingNewsInRecommendations",
-        "hideTrendingInRecommendations"
-    ], function (val) {
+function mainPage(val){
+    if (val.hideShortsRecommendations){
+        waitAndHide("Shorts", "span", "main", 9, "YTD-RICH-SECTION-RENDERER");
+    }
+    if (val.hideShortsPageButton){
+        waitAndHide("Shorts", "span", "side small", 2, "YTD-MINI-GUIDE-ENTRY-RENDERER");
+        waitAndHide("Shorts", "yt-formatted-string", "side big", 2, "A");
+    }
+    if (val.hideTrendingInRecommendations){
+        waitAndHide("Trending", "span", "trending on main", 11, "YTD-RICH-SECTION-RENDERER");
+    }
+    if (val.hideBreakingNewsInRecommendations){
+        waitAndHide("Breaking news", "span", "breaking news on main", 9, "YTD-RICH-SECTION-RENDERER");
+    }
+    let contentsInterval = setInterval(()=>{
+        contents = document.getElementById("contents");
+        if (contents){
+            clearInterval(contentsInterval);
+            contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
+            contents.style.display = "hidden";
+            let filteredVideosParent = document.getElementById("filteredVideosParent");
+            filteredVideosParent.style.display="flex";
+            filteredVideosParent.style.displayDirection="horizontal";
+            filteredVideosParent.style.width="100%";
+            filteredVideosParent.style.flexWrap="wrap";
+            setInterval(()=>{
+                handleVideos(filteredVideosParent);
+            }, MS_BETWEEN_TRIES)
+        }
+    }, MS_BETWEEN_TRIES);
+}
+
+chrome.storage.local.get([
+    "isExtensionActive",
+    "hideShortsRecommendations",
+    "hideShortsPageButton",
+    "hideBreakingNewsInRecommendations",
+    "hideTrendingInRecommendations"
+], function (val) {
+    if (!val.isExtensionActive){
+        return;
+    }
     let url = window.location.href;
     if (url == "https://www.youtube.com/") {
-        if (val.hideShortsRecommendations){
-            waitAndHide("Shorts", "span", "main", 9, "YTD-RICH-SECTION-RENDERER");
-        }
-        if (val.hideShortsPageButton){
-            waitAndHide("Shorts", "span", "side small", 2, "YTD-MINI-GUIDE-ENTRY-RENDERER");
-            waitAndHide("Shorts", "yt-formatted-string", "side big", 2, "A");
-        }
-        if (val.hideTrendingInRecommendations){
-            waitAndHide("Trending", "span", "trending on main", 11, "YTD-RICH-SECTION-RENDERER");
-        }
-        if (val.hideBreakingNewsInRecommendations){
-            waitAndHide("Breaking news", "span", "breaking news on main", 9, "YTD-RICH-SECTION-RENDERER");
-        }
-        let contentsInterval = setInterval(()=>{
-            contents = document.getElementById("contents");
-            if (contents){
-                clearInterval(contentsInterval);
-                contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
-                contents.style.display = "hidden";
-                let filteredVideosParent = document.getElementById("filteredVideosParent");
-                filteredVideosParent.style.display="flex";
-                filteredVideosParent.style.displayDirection="horizontal";
-                filteredVideosParent.style.width="100%";
-                filteredVideosParent.style.flexWrap="wrap";
-                setInterval(()=>{
-                    handleVideoTitles(filteredVideosParent);
-                }, MS_BETWEEN_TRIES)
-            }
-        }, MS_BETWEEN_TRIES);
+        mainPage(val);
     }
 });
