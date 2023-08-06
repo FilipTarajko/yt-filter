@@ -1,7 +1,7 @@
 let MS_BETWEEN_TRIES = 30;
 let approved_videos = [];
 
-function waitAndHide(content, type, name, timesNested, tagnameToHide){
+function waitAndHide(content, type, timesNested, tagnameToHide){
     var xpath = `//${type}[contains(text(),"${content}")]`;
     let interval = setInterval(()=>{
         var matchingElement = document
@@ -11,17 +11,21 @@ function waitAndHide(content, type, name, timesNested, tagnameToHide){
         for (let i=0; i<timesNested; i++){
             toHide = toHide?.parentElement;
         }
+        // @ts-ignore
         if (toHide?.tagName == tagnameToHide){
+            // @ts-ignore
             toHide.style.display = "none";
+            // @ts-ignore
             matchingElement.innerText = "";
             clearInterval(interval);
         }
     }, MS_BETWEEN_TRIES);
 }
 
-function handleVideos(){
+function handleVideos(filteredVideosParent){
     let titles = document.querySelectorAll('yt-formatted-string#video-title:not(.filtered)');
     for (let titleElem of titles){
+        // @ts-ignore
         let title = titleElem.innerText;
         let lowercased = title.toLowerCase();
         let videoBlock = titleElem;
@@ -29,6 +33,7 @@ function handleVideos(){
             videoBlock = videoBlock.parentElement;
         }
         if (!lowercased.includes("-") || approved_videos.includes(title)){
+            // @ts-ignore
             videoBlock.style.display = "none";
         } else {
             approved_videos.push(title);
@@ -39,27 +44,28 @@ function handleVideos(){
 }
 
 function mainPage(val){
-    if (val.hideShortsRecommendations){
-        waitAndHide("Shorts", "span", "main", 9, "YTD-RICH-SECTION-RENDERER");
+    if (val.hideSections.shortsRecommendations){
+        waitAndHide("Shorts", "span", 9, "YTD-RICH-SECTION-RENDERER");
     }
-    if (val.hideShortsPageButton){
-        waitAndHide("Shorts", "span", "side small", 2, "YTD-MINI-GUIDE-ENTRY-RENDERER");
-        waitAndHide("Shorts", "yt-formatted-string", "side big", 2, "A");
+    if (val.hideSections.shortsPageButton){
+        waitAndHide("Shorts", "span", 2, "YTD-MINI-GUIDE-ENTRY-RENDERER");
+        waitAndHide("Shorts", "yt-formatted-string", 2, "A");
     }
-    if (val.hideTrendingInRecommendations){
-        waitAndHide("Trending", "span", "trending on main", 11, "YTD-RICH-SECTION-RENDERER");
+    if (val.hideSections.trendingRecommendations){
+        waitAndHide("Trending", "span", 11, "YTD-RICH-SECTION-RENDERER");
     }
-    if (val.hideBreakingNewsInRecommendations){
-        waitAndHide("Breaking news", "span", "breaking news on main", 9, "YTD-RICH-SECTION-RENDERER");
+    if (val.hideSections.breakingNewsRecommendations){
+        waitAndHide("Breaking news", "span", 9, "YTD-RICH-SECTION-RENDERER");
     }
     let contentsInterval = setInterval(()=>{
-        contents = document.getElementById("contents");
+        let contents = document.getElementById("contents");
         if (contents){
             clearInterval(contentsInterval);
             contents.insertAdjacentHTML('beforebegin', '<div id="filteredVideosParent"></div>');
             contents.style.display = "hidden";
             let filteredVideosParent = document.getElementById("filteredVideosParent");
             filteredVideosParent.style.display="flex";
+            // @ts-ignore
             filteredVideosParent.style.displayDirection="horizontal";
             filteredVideosParent.style.width="100%";
             filteredVideosParent.style.flexWrap="wrap";
@@ -72,10 +78,7 @@ function mainPage(val){
 
 chrome.storage.local.get([
     "isExtensionActive",
-    "hideShortsRecommendations",
-    "hideShortsPageButton",
-    "hideBreakingNewsInRecommendations",
-    "hideTrendingInRecommendations"
+    "hideSections",
 ], function (val) {
     if (!val.isExtensionActive){
         return;
